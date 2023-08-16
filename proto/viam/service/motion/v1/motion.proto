@@ -35,6 +35,12 @@ service MotionService {
     };
   }
 
+  rpc MoveSingleComponent(MoveSingleComponentRequest) returns (MoveSingleComponentResponse) {
+    option (google.api.http) = {
+      post: "/viam/api/v1/service/motion/{name}/move_single_component"
+    };
+  }
+
   // DoCommand sends/receives arbitrary commands
   rpc DoCommand(common.v1.DoCommandRequest) returns (common.v1.DoCommandResponse) {
     option (google.api.http) = {
@@ -109,8 +115,10 @@ message MoveOnGlobeRequest {
   common.v1.ResourceName movement_sensor_name = 5;
   // Obstacles to be considered for motion planning
   repeated common.v1.GeoObstacle obstacles = 6;
-  // Optional set of motion configuration options
-  optional MotionConfiguration motion_configuration = 7;
+  // Optional linear velocity to target when moving
+  optional float linear_meters_per_sec = 7;
+  // Optional angular velocity to target when turning
+  optional float angular_deg_per_sec = 8;
   // Additional arguments to the method
   google.protobuf.Struct extra = 99;
 }
@@ -136,6 +144,19 @@ message GetPoseRequest {
 
 message GetPoseResponse {
   common.v1.PoseInFrame pose = 1;
+}
+
+message MoveSingleComponentRequest {
+  string name = 1;
+  common.v1.PoseInFrame destination = 2;
+  common.v1.ResourceName component_name = 3;
+  optional common.v1.WorldState world_state = 4;
+  // Additional arguments to the method
+  google.protobuf.Struct extra = 99;
+}
+
+message MoveSingleComponentResponse {
+  bool success = 1;
 }
 
 // Constraints specifies all enumerated constraints to be passed to Viam's motion planning, along with any optional parameters

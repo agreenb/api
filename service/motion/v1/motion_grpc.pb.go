@@ -27,6 +27,7 @@ type MotionServiceClient interface {
 	MoveOnMap(ctx context.Context, in *MoveOnMapRequest, opts ...grpc.CallOption) (*MoveOnMapResponse, error)
 	MoveOnGlobe(ctx context.Context, in *MoveOnGlobeRequest, opts ...grpc.CallOption) (*MoveOnGlobeResponse, error)
 	GetPose(ctx context.Context, in *GetPoseRequest, opts ...grpc.CallOption) (*GetPoseResponse, error)
+	MoveSingleComponent(ctx context.Context, in *MoveSingleComponentRequest, opts ...grpc.CallOption) (*MoveSingleComponentResponse, error)
 	// DoCommand sends/receives arbitrary commands
 	DoCommand(ctx context.Context, in *v1.DoCommandRequest, opts ...grpc.CallOption) (*v1.DoCommandResponse, error)
 }
@@ -75,6 +76,15 @@ func (c *motionServiceClient) GetPose(ctx context.Context, in *GetPoseRequest, o
 	return out, nil
 }
 
+func (c *motionServiceClient) MoveSingleComponent(ctx context.Context, in *MoveSingleComponentRequest, opts ...grpc.CallOption) (*MoveSingleComponentResponse, error) {
+	out := new(MoveSingleComponentResponse)
+	err := c.cc.Invoke(ctx, "/viam.service.motion.v1.MotionService/MoveSingleComponent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *motionServiceClient) DoCommand(ctx context.Context, in *v1.DoCommandRequest, opts ...grpc.CallOption) (*v1.DoCommandResponse, error) {
 	out := new(v1.DoCommandResponse)
 	err := c.cc.Invoke(ctx, "/viam.service.motion.v1.MotionService/DoCommand", in, out, opts...)
@@ -92,6 +102,7 @@ type MotionServiceServer interface {
 	MoveOnMap(context.Context, *MoveOnMapRequest) (*MoveOnMapResponse, error)
 	MoveOnGlobe(context.Context, *MoveOnGlobeRequest) (*MoveOnGlobeResponse, error)
 	GetPose(context.Context, *GetPoseRequest) (*GetPoseResponse, error)
+	MoveSingleComponent(context.Context, *MoveSingleComponentRequest) (*MoveSingleComponentResponse, error)
 	// DoCommand sends/receives arbitrary commands
 	DoCommand(context.Context, *v1.DoCommandRequest) (*v1.DoCommandResponse, error)
 	mustEmbedUnimplementedMotionServiceServer()
@@ -112,6 +123,9 @@ func (UnimplementedMotionServiceServer) MoveOnGlobe(context.Context, *MoveOnGlob
 }
 func (UnimplementedMotionServiceServer) GetPose(context.Context, *GetPoseRequest) (*GetPoseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPose not implemented")
+}
+func (UnimplementedMotionServiceServer) MoveSingleComponent(context.Context, *MoveSingleComponentRequest) (*MoveSingleComponentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MoveSingleComponent not implemented")
 }
 func (UnimplementedMotionServiceServer) DoCommand(context.Context, *v1.DoCommandRequest) (*v1.DoCommandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DoCommand not implemented")
@@ -201,6 +215,24 @@ func _MotionService_GetPose_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MotionService_MoveSingleComponent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MoveSingleComponentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MotionServiceServer).MoveSingleComponent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/viam.service.motion.v1.MotionService/MoveSingleComponent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MotionServiceServer).MoveSingleComponent(ctx, req.(*MoveSingleComponentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MotionService_DoCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(v1.DoCommandRequest)
 	if err := dec(in); err != nil {
@@ -241,6 +273,10 @@ var MotionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPose",
 			Handler:    _MotionService_GetPose_Handler,
+		},
+		{
+			MethodName: "MoveSingleComponent",
+			Handler:    _MotionService_MoveSingleComponent_Handler,
 		},
 		{
 			MethodName: "DoCommand",
